@@ -6,6 +6,8 @@ using UnityEngine.UIElements;
 
 public class ObstacleSpawner : MonoBehaviour
 {
+    //public List<GameObject> obstaclePrefabs; // zdz sukurk skirtingai atrodanciu kliuciu
+
     public float cooldownMin = 1;
     public float cooldownMax = 3;
 
@@ -15,18 +17,18 @@ public class ObstacleSpawner : MonoBehaviour
 
     float safeLocation;
     float lastSpawnTime = 1;
+    Vector2 vector = new Vector2(1, 1);
     Vector3 positionOffset = new();
-    Transform[] transforms;
+    List<GameObject> childs = new();
 
     void Start()
     {
         positionOffset.x = 9;
 
 
-
-        foreach (Transform t in obstaclePrefab.transform)
+        for(int i=0; i< obstaclePrefab.transform.childCount; i++)
         {
-            transforms.Append<Transform>(t);
+            childs.Add(obstaclePrefab.transform.GetChild(i).gameObject);
         }
     }
     
@@ -36,17 +38,20 @@ public class ObstacleSpawner : MonoBehaviour
         {
             safeLocation = Random.Range(-3.5f, 4f);
 
-            transforms[0].localScale = Vector3.down * (positionOffset.y + safeSize / 2);
-            transforms[1].localScale = Vector3.up * (positionOffset.y - safeSize / 2);
+            childs[0].transform.localScale = vector * (positionOffset.y + safeSize / 2);
+            childs[1].transform.localScale = vector * (positionOffset.y - safeSize / 2);
 
-            positionOffset.y = 4f - transforms[0].localScale.y / 2;
-            positionOffset.y = 3.5f + transforms[1].localScale.y / 2;
+            positionOffset.y = 4f -    childs[0].transform.localScale.y / 2;
+            positionOffset.y = 3.5f + childs[1].transform.localScale.y / 2;
 
             Instantiate(obstaclePrefab, positionOffset, Quaternion.identity);
 
-            lastSpawnTime = lastSpawnTime-Time.deltaTime * Random.Range(1f, 1.5f);
+            positionOffset.y = 0; // myliu gyvenima
+
+            lastSpawnTime = Random.Range(cooldownMin, cooldownMax);
         }
 
+        lastSpawnTime = lastSpawnTime - Time.deltaTime * Random.Range(1f, 1.5f);
 
         /*if (lastSpawnTime <= 0)
         {
